@@ -70,6 +70,7 @@ def main():
         basename, ext = os.path.splitext(img_name)
         input_img = cv2.imread(img_path, cv2.IMREAD_COLOR)
 
+        print('ONLY CENTER? ' + str(args.only_center_face))
         cropped_faces, restored_faces, restored_img = restorer.enhance(
             input_img, has_aligned=args.aligned, only_center_face=args.only_center_face, paste_back=args.paste_back)
 

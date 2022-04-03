@@ -68,6 +68,7 @@ class GFPGANer():
 
     @torch.no_grad()
     def enhance(self, img, has_aligned=False, only_center_face=False, paste_back=True):
+        print('[ENHANCE] ONLY CENTER? ' + str(only_center_face))
         self.face_helper.clean_all()
 
         if has_aligned:
@@ -80,6 +81,10 @@ class GFPGANer():
             # eye_dist_threshold=5: skip faces whose eye distance is smaller than 5 pixels
             # align and warp each face
             self.face_helper.align_warp_face()
+
+        ####
+        # self.face_helper.cropped_faces.append
+        ####
 
         # face restoration
         for cropped_face in self.face_helper.cropped_faces:
