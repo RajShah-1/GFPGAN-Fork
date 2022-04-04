@@ -310,7 +310,6 @@ class GFPGANv1(nn.Module):
         self.final_linear = EqualLinear(
             channels['4'] * 4 * 4, linear_out_channel, bias=True, bias_init_val=0, lr_mul=1, activation=None)
 
-        # LSTM for temporal fusion
         self.lstm_hidden_dim = 500
         self.style_lstm = nn.LSTM(num_style_feat, self.lstm_hidden_dim)
         self.lstm_hidden = (
@@ -319,7 +318,6 @@ class GFPGANv1(nn.Module):
         )
         self.lstm_fusion_param = nn.Parameter(torch.tensor(0.2))
 
-        # the decoder: stylegan2 generator with SFT modulations
         self.stylegan_decoder = StyleGAN2GeneratorSFT(
             out_size=out_size,
             num_style_feat=num_style_feat,
