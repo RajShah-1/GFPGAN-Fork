@@ -5,12 +5,62 @@ import os.path as osp
 import torch
 import torch.utils.data as data
 from basicsr.data import degradations as degradations
-from basicsr.data.data_util import paths_from_folder
+# from basicsr.data.data_util import paths_from_folder
 from basicsr.data.transforms import augment
 from basicsr.utils import FileClient, get_root_logger, imfrombytes, img2tensor
 from basicsr.utils.registry import DATASET_REGISTRY
 from torchvision.transforms.functional import (adjust_brightness, adjust_contrast, adjust_hue, adjust_saturation,
                                                normalize)
+import os
+from collections import defaultdict
+
+
+def my_scandir_recursive(dir_path):
+    """Scan a directory to find the interested files.
+    Args:
+        dir_path (str): Path of the directory.
+        recursive (bool, optional): If set to True, recursively scan the
+            directory. Default: False.
+
+    Returns:
+        A generator for all the interested files with relative paths.
+    """
+    root = dir_path
+
+    def _scandir(dir_path, dir_id):
+        for entry in os.scandir(dir_path):
+            if not entry.name.startswith('.') and entry.is_file():
+                return_path = osp.relpath(entry.path, root)
+                yield return_path, dir_id
+            else:
+                yield from _scandir(entry.path, dir_id+1)
+    return _scandir(dir_path, 0)
+
+
+def my_paths_from_folder(folder):
+    """Generate paths from folder.
+
+    Args:
+        folder (str): Folder path.
+
+    Returns:
+        list[str]: Returned path list.
+    """
+    paths = list(my_scandir_recursive(folder, recursive=True))
+    batches = defaultdict(list)
+    for path, dir_id in paths:
+        batches[dir_id].append(path)
+
+    batch_paths = []
+    full_paths = []
+    for dir_id, dir_paths in batches.items():
+        batch_path = []
+        for dir_path in dir_paths:
+            batch_path.append(len(full_paths))
+            full_paths.append(osp.join(folder, dir_path))
+        batch_paths.append(batch_path)
+
+    return full_paths, batch_paths
 
 
 @DATASET_REGISTRY.register()
@@ -57,7 +107,7 @@ class FFHQDegradationDataset(data.Dataset):
                 self.paths = [line.split('.')[0] for line in fin]
         else:
             # disk backend: scan file list from a folder
-            self.paths = paths_from_folder(self.gt_folder)
+            self.paths = my_paths_from_folder(self.gt_folder)
 
         # degradation configurations
         self.blur_kernel_size = opt['blur_kernel_size']

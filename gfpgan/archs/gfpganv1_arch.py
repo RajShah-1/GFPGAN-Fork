@@ -257,6 +257,7 @@ class GFPGANv1(nn.Module):
             sft_half=False):
 
         super(GFPGANv1, self).__init__()
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.input_is_latent = input_is_latent
         self.different_w = different_w
         self.num_style_feat = num_style_feat
@@ -310,11 +311,12 @@ class GFPGANv1(nn.Module):
         self.final_linear = EqualLinear(
             channels['4'] * 4 * 4, linear_out_channel, bias=True, bias_init_val=0, lr_mul=1, activation=None)
 
-        self.lstm_hidden_dim = 500
-        self.style_lstm = nn.LSTM(num_style_feat, self.lstm_hidden_dim)
+        self.lstm_hidden_dim = out_size
+        print('###### out_size' + str(out_size))
+        self.style_lstm = nn.LSTM(out_size, self.lstm_hidden_dim)
         self.lstm_hidden = (
-            torch.randn(1, 1, self.hidden_dim),
-            torch.randn(1, 1, self.hidden_dim)
+            torch.randn(1, 16, self.lstm_hidden_dim).to(self.device),
+            torch.randn(1, 16, self.lstm_hidden_dim).to(self.device)
         )
         self.lstm_fusion_param = nn.Parameter(torch.tensor(0.2))
 
@@ -385,6 +387,7 @@ class GFPGANv1(nn.Module):
 
         # Fuse with the lstm's output
         lstm_out, self.lstm_hidden = self.style_lstm(style_code, self.lstm_hidden)
+        self.lstm_hidden = tuple(state.detach() for state in self.lstm_hidden)
         style_code = (1-self.lstm_fusion_param)*style_code+self.lstm_fusion_param*lstm_out
 
         # decode
