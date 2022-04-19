@@ -46,7 +46,7 @@ def my_paths_from_folder(folder):
     Returns:
         list[str]: Returned path list.
     """
-    paths = list(my_scandir_recursive(folder, recursive=True))
+    paths = list(my_scandir_recursive(folder))
     batches = defaultdict(list)
     for path, dir_id in paths:
         batches[dir_id].append(path)
@@ -60,6 +60,8 @@ def my_paths_from_folder(folder):
             full_paths.append(osp.join(folder, dir_path))
         batch_paths.append(batch_path)
 
+    print("+++++++++++++++++++++==")
+    print(batch_paths)
     return full_paths, batch_paths
 
 
@@ -107,7 +109,7 @@ class FFHQDegradationDataset(data.Dataset):
                 self.paths = [line.split('.')[0] for line in fin]
         else:
             # disk backend: scan file list from a folder
-            self.paths = my_paths_from_folder(self.gt_folder)
+            self.paths, self.batch_paths = my_paths_from_folder(self.gt_folder)
 
         # degradation configurations
         self.blur_kernel_size = opt['blur_kernel_size']
