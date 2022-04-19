@@ -60,8 +60,8 @@ def my_paths_from_folder(folder):
             full_paths.append(osp.join(folder, dir_path))
         batch_paths.append(batch_path)
 
-    print("+++++++++++++++++++++==")
-    print(batch_paths)
+    # print("+++++++++++++++++++++==")
+    # print(batch_paths)
     return full_paths, batch_paths
 
 
