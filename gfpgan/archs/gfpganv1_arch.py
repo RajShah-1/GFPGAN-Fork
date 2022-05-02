@@ -318,7 +318,7 @@ class GFPGANv1(nn.Module):
             torch.randn(1, 16, self.lstm_hidden_dim).to(self.device),
             torch.randn(1, 16, self.lstm_hidden_dim).to(self.device)
         )
-        self.lstm_fusion_param = nn.Parameter(torch.tensor(0.2))
+        self.lstm_fusion_param = nn.Parameter(torch.tensor(0.005))
 
         self.stylegan_decoder = StyleGAN2GeneratorSFT(
             out_size=out_size,

@@ -10,7 +10,7 @@ datasets:
     name: FFHQ
     type: FFHQDegradationDataset
     # dataroot_gt: datasets/ffhq/ffhq_512.lmdb
-    dataroot_gt: datasets/ffhq_small_512
+    dataroot_gt: datasets/images_gt
     io_backend:
       # type: lmdb
       type: disk
@@ -45,9 +45,9 @@ datasets:
     eye_enlarge_ratio: 1.4
 
     # data loader
-    use_shuffle: true
+    use_shuffle: false
     num_worker_per_gpu: 6
-    batch_size_per_gpu: 3
+    batch_size_per_gpu: 8
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
@@ -132,7 +132,7 @@ train:
     milestones: [600000, 700000]
     gamma: 0.5
 
-  total_iter: 10
+  total_iter: 50000
   warmup_iter: -1  # no warm up
 
   # losses
